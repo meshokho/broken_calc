@@ -55,6 +55,8 @@ func registerRoutes(router *echo.Echo) {
 	{
 		api.GET(fmt.Sprintf("/add/:%s/:%s", first, second), Add)
 		api.GET(fmt.Sprintf("/sub/:%s/:%s", first, second), Sub)
+		api.GET(fmt.Sprintf("/multiply/:%s/:%s", first, second), Multiply)
+		api.GET(fmt.Sprintf("/divide/:%s/:%s", first, second), Divide)
 	}
 }
 
@@ -105,4 +107,40 @@ func Sub(ctx echo.Context) (err error) {
 	}
 
 	return ctx.JSON(200, echo.Map{"result": firstArgInt - secondArgInt})
+}
+
+func Multiply(ctx echo.Context) (err error) {
+	firstArg := ctx.Param(first)
+	secondArg := ctx.Param(second)
+
+	firstArgInt, err := strconv.Atoi(firstArg)
+	if err != nil {
+		Log.Warnw(err.Error())
+		return ctx.JSON(400, echo.Map{"msg": "wrong first argument"})
+	}
+	secondArgInt, err := strconv.Atoi(secondArg)
+	if err != nil {
+		Log.Warnw(err.Error())
+		return ctx.JSON(400, echo.Map{"msg": "wrong second argument"})
+	}
+
+	return ctx.JSON(200, echo.Map{"result": firstArgInt * secondArgInt})
+}
+
+func Divide(ctx echo.Context) (err error) {
+	firstArg := ctx.Param(first)
+	secondArg := ctx.Param(second)
+
+	firstArgInt, err := strconv.Atoi(firstArg)
+	if err != nil {
+		Log.Warnw(err.Error())
+		return ctx.JSON(400, echo.Map{"msg": "wrong first argument"})
+	}
+	secondArgInt, err := strconv.Atoi(secondArg)
+	if err != nil {
+		Log.Warnw(err.Error())
+		return ctx.JSON(400, echo.Map{"msg": "wrong second argument"})
+	}
+
+	return ctx.JSON(200, echo.Map{"result": firstArgInt / secondArgInt})
 }
