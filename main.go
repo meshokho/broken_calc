@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 
+	"broken_calc/consts"
+	api_v1 "broken_calc/v1"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -51,19 +52,19 @@ func main() {
 }
 
 func registerRoutes(router *echo.Echo) {
+	apiV1Controller := api_v1.ApiV1Controller{Log: Log}
+
 	api := router.Group("/api")
 	{
-		api.GET(fmt.Sprintf("/add/:%s/:%s", first, second), Add)
-		api.GET(fmt.Sprintf("/sub/:%s/:%s", first, second), Sub)
-		api.GET(fmt.Sprintf("/multiply/:%s/:%s", first, second), Multiply)
-		api.GET(fmt.Sprintf("/divide/:%s/:%s", first, second), Divide)
+		v1 := api.Group("/v1")
+		{
+			v1.GET(fmt.Sprintf("/add/:%s/:%s", consts.First, consts.Second), apiV1Controller.Add)
+			v1.GET(fmt.Sprintf("/sub/:%s/:%s", consts.First, consts.Second), apiV1Controller.Sub)
+			v1.GET(fmt.Sprintf("/multiply/:%s/:%s", consts.First, consts.Second), apiV1Controller.Multiply)
+			v1.GET(fmt.Sprintf("/divide/:%s/:%s", consts.First, consts.Second), apiV1Controller.Divide)
+		}
 	}
 }
-
-const (
-	first  = "first"
-	second = "second"
-)
 
 type CustomValidator struct {
 	Validator validator.Validate
@@ -71,76 +72,4 @@ type CustomValidator struct {
 
 func (cv *CustomValidator) Validate(i interface{}) error {
 	return cv.Validator.Struct(i)
-}
-
-func Add(ctx echo.Context) (err error) {
-	firstArg := ctx.Param(first)
-	secondArg := ctx.Param(second)
-
-	firstArgInt, err := strconv.Atoi(firstArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong first argument"})
-	}
-	secondArgInt, err := strconv.Atoi(secondArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong second argument"})
-	}
-
-	return ctx.JSON(200, echo.Map{"result": firstArgInt + secondArgInt})
-}
-
-func Sub(ctx echo.Context) (err error) {
-	firstArg := ctx.Param(first)
-	secondArg := ctx.Param(second)
-
-	firstArgInt, err := strconv.Atoi(firstArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong first argument"})
-	}
-	secondArgInt, err := strconv.Atoi(secondArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong second argument"})
-	}
-
-	return ctx.JSON(200, echo.Map{"result": firstArgInt - secondArgInt})
-}
-
-func Multiply(ctx echo.Context) (err error) {
-	firstArg := ctx.Param(first)
-	secondArg := ctx.Param(second)
-
-	firstArgInt, err := strconv.Atoi(firstArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong first argument"})
-	}
-	secondArgInt, err := strconv.Atoi(secondArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong second argument"})
-	}
-
-	return ctx.JSON(200, echo.Map{"result": firstArgInt * secondArgInt})
-}
-
-func Divide(ctx echo.Context) (err error) {
-	firstArg := ctx.Param(first)
-	secondArg := ctx.Param(second)
-
-	firstArgInt, err := strconv.Atoi(firstArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong first argument"})
-	}
-	secondArgInt, err := strconv.Atoi(secondArg)
-	if err != nil {
-		Log.Warnw(err.Error())
-		return ctx.JSON(400, echo.Map{"msg": "wrong second argument"})
-	}
-
-	return ctx.JSON(200, echo.Map{"result": firstArgInt / secondArgInt})
 }
